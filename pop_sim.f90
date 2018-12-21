@@ -102,6 +102,8 @@ subroutine simulate_year(pop,birth_distr,death_distr,age_year)
     type(ListPerson) :: newborns
     type(Person), pointer :: baby
     integer :: age, sex
+    logical, save :: first_first = .false., first_mid = .false., first_last = .false.
+
     if (associated(pop%first)) then
         allocate(empty)
         node => empty
@@ -114,29 +116,39 @@ subroutine simulate_year(pop,birth_distr,death_distr,age_year)
             if ((sex == 2) .and. (age >= 15) .and. (age <= 49)) then
                 if (random_uniform() < birth_distr(age-15+1)) then
                     call new_baby(baby)
-                    age_year(baby%sex,1)=age_year(baby%sex,1)+1
+                    age_year(baby%sex,1) = age_year(baby%sex,1)+1
                     call append_person(newborns,baby)
                 end if
             end if
             node%person%age = age + 1
-            age_year(sex,age+1)=age_year(sex,age+1)-1
-            age_year(sex,age+2)=age_year(sex,age+2)+1
+            age_year(sex,age+1) = age_year(sex,age+1)-1
+            age_year(sex,age+2) = age_year(sex,age+2)+1
             if ( random_uniform() < death_distr(sex,age+1) ) then
                 if (associated(node%left)) then
                     node => node%left
                     call remove_person(pop,node%right)
+                    if (.not. associated(node%right) .and. .not. first_last) then
+                        first_last = .true.
+                        write(*,*) 'First Last', age
+                    elseif (.not. first_mid) then
+                        first_mid = .true.
+                        write(*,*) 'First mid', age
+                    end if
                 else
-                    empty%right => node%right
-                    call remove_person(pop,node)
+                    call remove_person(pop,pop%first)
+                    empty%right => pop%first
                     node => empty 
+                    if (.not. first_first) then
+                        first_first = .true.
+                        write(*,*) 'First First!', age
+                    end if
                 end if
-                age_year(sex,age+2)=age_year(sex,age+2)-1
+                age_year(sex,age+2) = age_year(sex,age+2)-1
             end if
         end do
         deallocate(empty)
         call concat_lists(pop,newborns)
     end if
-
 end subroutine simulate_year
 
 end module pop_sim

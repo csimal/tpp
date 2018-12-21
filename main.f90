@@ -61,6 +61,7 @@ program main
             write(2,"(I4,A1,I3,A1,I7,A1,I7)")2011,' ', k-1,' ',age_year(1,k),' ',age_year(2,k)
         end do
         do j=2011,year-1
+                write(*,'(I4)') j
                 call simulate_year(pop,birth_distr,death_distr,age_year)
                 do k=1,105
                     write(2,"(I4,A1,I3,A1,I7,A1,I7)")j+1,' ', k-1,' ',age_year(1,k),' ',age_year(2,k)
