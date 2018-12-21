@@ -47,7 +47,7 @@ program main
         write(filename,"(A9,I5,A4)") "sextable_", ins,".txt"
         filename = trim(adjustl(path))//adjustl(filename)
         open (unit = 2,file=filename, action="write")
-        write(2,*)"Année",",","Age"," ","Hommes"," ","Femmes"
+        write(2,'(A24)')"Année Age Hommes Femmes"
         call read_constraints_gen(ins,c_gen)
         call read_constraints_sex(ins, c_sex)
         call read_constraints_dipl(ins, c_dipl)
@@ -58,12 +58,12 @@ program main
         call write_population(ct, ins, path)
         call generate_pop(ct,age_distr,pop,age_year)
         do k=1,105
-            write(2,*)2011, k-1,age_year(1,k),age_year(2,k)
+            write(2,"(I4,A1,I3,A1,I7,A1,I7)")2011,' ', k-1,' ',age_year(1,k),' ',age_year(2,k)
         end do
         do j=2011,year-1
                 call simulate_year(pop,birth_distr,death_distr,age_year)
                 do k=1,105
-                    write(2,*)j+1, k-1,age_year(1,k),age_year(2,k)
+                    write(2,"(I4,A1,I3,A1,I7,A1,I7)")j+1,' ', k-1,' ',age_year(1,k),' ',age_year(2,k)
                 end do
         end do
         call write_population_list(pop,ins,year,path)

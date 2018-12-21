@@ -287,18 +287,21 @@ subroutine write_cont_table(cont, ins, path)
     character(len=4), intent(in), optional :: path
     integer :: i, j, k, l
     character(len=35) :: filename
+    character(len=30) :: formatstr
 
     write(filename,"(A11,I5,A4)") "cont_table_", ins, ".txt"
     if (present(path)) then
         filename = trim(adjustl(path))//adjustl(filename)
     end if
     open (unit = 10, file = filename, action="write")
-    write(10,*) '"gener" "sex"    "dipl"   "statut"     "Freq"'
+    formatstr = '(A,A1,A,A1,A,A1,A,A1,I6)'
+    write(10,*) 'gener sex dipl statut Freq'
     do l = 1,3
         do k = 1,8
             do j = 1,2
                 do i = 1,20
-                    write(10,*) gen2str(i),' ',sex2str(j),' ',dipl2str(k),' ',stat2str(l),' ',int(cont(i,j,k,l))
+                    write(10,formatstr) trim(gen2str(i)),' ',sex2str(j),' ', & 
+                        trim(dipl2str(k)),' ',trim(stat2str(l)),' ',int(cont(i,j,k,l))
                 end do
             end do
         end do
@@ -331,7 +334,8 @@ subroutine write_population(cont, ins, path)
             do j = 1,2
                 do i = 1,20
                     do m=1,int(cont(i,j,k,l))
-                        write(10,*) gen2str(i),' ',sex2str(j),' ',dipl2str(k),' ',stat2str(l)
+                        write(10,'(A,A1,A,A1,A,A1,A)') trim(gen2str(i)),' ',sex2str(j),' ', & 
+                            trim(dipl2str(k)),' ',trim(stat2str(l))
                     end do
                 end do
             end do
@@ -363,7 +367,8 @@ subroutine write_population_list(pop, ins, year, path)
     do while (associated(node%right))
         node => node%right
         p => node%person
-        write(10,*) p%age,' ',sex2str(p%sex),' ',dipl2str(p%diploma),' ',stat2str(p%work_status)
+        write(10,'(I3,A1,A,A1,A,A1,A)') p%age,' ',sex2str(p%sex),' ', &
+            trim(dipl2str(p%diploma)),' ',trim(stat2str(p%work_status))
     end do
     deallocate(empty)
     close(10)
@@ -378,6 +383,7 @@ subroutine write_final_pop(pop, ins,year,path)
     character(len=40) :: filename
     type(ListPersonNode), pointer :: node, empty
     type(Person), pointer :: p
+    character(len=30) :: formatstr
 
     cont = 0.0
     
@@ -400,12 +406,14 @@ subroutine write_final_pop(pop, ins,year,path)
         filename = trim(adjustl(path))//adjustl(filename)
     end if
     open (unit = 10, file =filename, action="write")
-    write(10,*) '"gener" "sex"    "dipl"   "statut"     "Freq"'
+    write(10,*) 'gener sex dipl statut Freq'
+    formatstr = '(A,A1,A,A1,A,A1,A,A1,I6)'
     do l = 1,3
         do k = 1,8
             do j = 1,2
                 do i = 1,20
-                    write(10,*) gen2str(i),' ',sex2str(j),' ',dipl2str(k),' ',stat2str(l),' ',int(cont(i,j,k,l))
+                    write(10,formatstr) trim(gen2str(i)),' ',sex2str(j),' ', &
+                        trim(dipl2str(k)),' ',trim(stat2str(l)),' ',int(cont(i,j,k,l))
                 end do
             end do
         end do

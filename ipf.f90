@@ -94,7 +94,7 @@ function ipf_gen(cont_in, c_gen, c_sex, c_dipl, c_stat, eps, ins, path) result(c
     n = 0
 
     if (present(ins)) then
-        write(10, *) n, dist_cont(ct1,ct2)
+        write(10,'(I3,A1,F23.14)') n,' ', dist_cont(ct1,ct2)
         write(11, "(I1)") n
         do i = 1,20, 1
             write(11,"(F11.4,X)",advance='no') tot_gen(i)
@@ -121,7 +121,7 @@ function ipf_gen(cont_in, c_gen, c_sex, c_dipl, c_stat, eps, ins, path) result(c
         call ipf_iter(ct1, ct2, c_gen, c_sex, c_dipl, c_stat, tot_gen, tot_sex, tot_dipl, tot_stat)
         if (present(ins)) then
             n = n+1
-            write(10, *) n, dist_cont(ct1,ct2)
+            write(10,'(I3,A1,F23.14)') n,' ', dist_cont(ct1,ct2)
             write(11, "(I2)") n
             do i = 1,20, 1
                 write(11,"(F11.4,X)",advance='no') tot_gen(i)
