@@ -331,7 +331,7 @@ subroutine write_population(cont, ins, path)
             do j = 1,2
                 do i = 1,20
                     do m=1,int(cont(i,j,k,l))
-                        write(10,*) gen2str(i),' ',sex2str(j),' ',dipl2str(k),' ',stat2str(l), int(cont(i,j,k,l))
+                        write(10,*) gen2str(i),' ',sex2str(j),' ',dipl2str(k),' ',stat2str(l)
                     end do
                 end do
             end do

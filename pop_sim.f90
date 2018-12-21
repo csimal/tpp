@@ -47,10 +47,11 @@ module pop_sim
         ! in cont_table
         ! Description: generates a list of individuals from cont_table
         ! using age_distr to generate exact ages
-        function generate_pop(cont_table, age_distr) result(list)
+        subroutine generate_pop(cont_table, age_distr,list,age_year)
             real(dp), dimension(20,2,8,3), intent(in) :: cont_table
             real(dp), dimension(22,2,5), intent(in) :: age_distr
-            type(ListPerson) :: list
+            type(ListPerson),intent(out) :: list
+            integer,dimension(2,105),intent(inout) :: age_year
             integer :: i,j,k,l,m
             type(Person), pointer :: p
 
@@ -60,13 +61,14 @@ module pop_sim
                         do l = 1,3
                             do m = 1,int(cont_table(i,j,k,l))
                                 call new_person(gen_age(i,j,age_distr),j,k,l,p)
+                                age_year(p%sex,p%age+1)=age_year(p%sex,p%age+1)+1
                                 call append_person(list,p)
                             end do
                         end do
                     end do
                 end do
             end do
-        end function generate_pop
+        end subroutine generate_pop
 
         ! PRE: /
         ! POST: baby is associated to a randomly generated newborn
@@ -79,7 +81,7 @@ module pop_sim
             else
                 sex = 2
             end if
-            call new_person(0,sex,1,1,baby)
+            call new_person(0,sex,1,2,baby)
         end subroutine new_baby
 
         ! PRE: birth_distr(i) contains the probability of a woman aged 14+i to
@@ -91,17 +93,15 @@ module pop_sim
         ! contained in pop. Each individual ages 1 year, and may die and be
         ! removed from the population. Women aged 15 to 49 may give birth to
         ! a baby. The babies are appended to the population.
-        subroutine simulate_year(pop,birth_distr,death_distr,n_men,n_women)
+        subroutine simulate_year(pop,birth_distr,death_distr,age_year)
             type(ListPerson), intent(inout) :: pop
             real(dp), dimension(35), intent(in) :: birth_distr
             real(dp), dimension(2,105), intent(in) :: death_distr
-            integer, intent(out)::n_men,n_women
+            integer,dimension(2,105), intent(inout)::age_year
             type(ListPersonNode), pointer :: node,empty
             type(ListPerson) :: newborns
             type(Person), pointer :: baby
             integer :: age, sex
-            n_men=0
-            n_women=0
             if (associated(pop%first)) then
                 allocate(empty)
                 node => empty
@@ -111,23 +111,16 @@ module pop_sim
                     node => node%right
                     age = node%person%age
                     sex = node%person%sex
-                    if(sex==1) then 
-                        n_men=n_men+1
-                    else
-                        n_women=n_women+1
-                    end if
                     if ((sex == 2) .and. (age >= 15) .and. (age <= 49)) then
                         if (random_uniform() < birth_distr(age-15+1)) then
                             call new_baby(baby)
-                            if(baby%sex==1)then
-                                n_men=n_men+1
-                            else
-                                n_women=n_women+1
-                            end if
+                            age_year(baby%sex,1)=age_year(baby%sex,1)+1
                             call append_person(newborns,baby)
                         end if
                     end if
                     node%person%age = age + 1
+                    age_year(sex,age+1)=age_year(sex,age+1)-1
+                    age_year(sex,age+2)=age_year(sex,age+2)+1
                     if ( random_uniform() < death_distr(sex,age+1) ) then
                         if (associated(node%left)) then
                             node => node%left
@@ -135,16 +128,11 @@ module pop_sim
                         else
                             empty%right => node%right
                             call remove_person(pop,node)
-                            node => empty
+                            node => empty 
                         end if
-                        if(sex==1) then 
-                            n_men=n_men-1
-                        else
-                            n_women=n_women-1
-                        end if
+                        age_year(sex,age+2)=age_year(sex,age+2)-1
                     end if
                 end do
-
                 deallocate(empty)
                 call concat_lists(pop,newborns)
             end if
