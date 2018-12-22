@@ -33,11 +33,8 @@ def table_tot(table):
             t[i] = t[i] + table[j][i]
     return t
 
-data = open("1/sextable_92094.txt",'r')
-
-
+data = open("2/sextable_92094.txt",'r')
 men, women = read_sextable(data)
-
 data.close()
 
 years = range(2011,2112)

@@ -102,7 +102,6 @@ subroutine simulate_year(pop,birth_distr,death_distr,age_year)
     type(ListPerson) :: newborns
     type(Person), pointer :: baby
     integer :: age, sex
-    logical, save :: first_first = .false., first_mid = .false., first_last = .false.
 
     if (associated(pop%first)) then
         allocate(empty)
@@ -127,21 +126,10 @@ subroutine simulate_year(pop,birth_distr,death_distr,age_year)
                 if (associated(node%left)) then
                     node => node%left
                     call remove_person(pop,node%right)
-                    if (.not. associated(node%right) .and. .not. first_last) then
-                        first_last = .true.
-                        write(*,*) 'First Last', age
-                    elseif (.not. first_mid) then
-                        first_mid = .true.
-                        write(*,*) 'First mid', age
-                    end if
                 else
                     call remove_person(pop,pop%first)
                     empty%right => pop%first
                     node => empty 
-                    if (.not. first_first) then
-                        first_first = .true.
-                        write(*,*) 'First First!', age
-                    end if
                 end if
                 age_year(sex,age+2) = age_year(sex,age+2)-1
             end if

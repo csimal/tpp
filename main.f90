@@ -43,11 +43,11 @@ program main
         ins=ins_table(i)
         age_year =0
         ct = 0
-        write(*,*) "Simulation for ins:",ins
+        write(*,'(A,I5)') "Simulation for ins: ",ins
         write(filename,"(A9,I5,A4)") "sextable_", ins,".txt"
         filename = trim(adjustl(path))//adjustl(filename)
         open (unit = 2,file=filename, action="write")
-        write(2,'(A24)')"Année Age Hommes Femmes"
+        write(2,'(A)')"Année Age Hommes Femmes"
         call read_constraints_gen(ins,c_gen)
         call read_constraints_sex(ins, c_sex)
         call read_constraints_dipl(ins, c_dipl)
@@ -62,7 +62,6 @@ program main
             write(2,"(I4,A1,I3,A1,I7,A1,I7)")2011,' ', k-1,' ',age_year(1,k),' ',age_year(2,k)
         end do
         do j=2011,year-1
-                write(*,'(I4)') j
                 call simulate_year(pop,birth_distr,death_distr,age_year)
                 do k=1,105
                     write(2,"(I4,A1,I3,A1,I7,A1,I7)")j+1,' ', k-1,' ',age_year(1,k),' ',age_year(2,k)
