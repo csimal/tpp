@@ -57,6 +57,7 @@ program main
         call trs(ct)
         call write_population(ct, ins, path)
         call generate_pop(ct,age_distr,pop,age_year)
+
         do k=1,105
             write(2,"(I4,A1,I3,A1,I7,A1,I7)")2011,' ', k-1,' ',age_year(1,k),' ',age_year(2,k)
         end do
@@ -67,6 +68,7 @@ program main
                     write(2,"(I4,A1,I3,A1,I7,A1,I7)")j+1,' ', k-1,' ',age_year(1,k),' ',age_year(2,k)
                 end do
         end do
+
         call write_population_list(pop,ins,year,path)
         call write_final_pop(pop,ins,year,path)
         call empty_list(pop)

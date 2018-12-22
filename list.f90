@@ -92,6 +92,7 @@ subroutine concat_lists(l1,l2)
 
     if ( associated(l1%first) .and. associated(l2%first) ) then
         l1%last%right => l2%first
+        l2%first%left => l1%last
         l1%last => l2%last
         nullify(l2%first)
         nullify(l2%last)
