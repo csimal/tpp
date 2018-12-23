@@ -1,6 +1,13 @@
 module age
     use constants
 
+! """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+! File: age.f90
+! Author: meuricel
+! Description: This module contains subroutines to initialize the age, birth
+! and death distributions used in the simulation.
+! """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
     implicit none
 
     contains 

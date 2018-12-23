@@ -1,5 +1,12 @@
 module random
     use constants
+
+! """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+! File: random
+! Author: csimal
+! Description: This module implements various pseudorandom numbers generators
+! """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
     implicit none
     contains
 

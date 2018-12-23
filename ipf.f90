@@ -1,6 +1,14 @@
 module ipf
     use constants
     use random
+
+! """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+! File: ipf.f90
+! Author: csimal
+! Description: This module handles population generation using ipf and trs
+! methods
+! """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
     implicit none
     contains
 
@@ -8,36 +16,47 @@ module ipf
 ! POST: cont_out contains the result of a single iteration of ipf on cont_in
 ! Description: ipf_iter computes a single iteration of ipf of the contigency table cont_in
 ! returning the new table in cont_out
-subroutine ipf_iter(cont_in, cont_out, c_gen, c_sex, c_dipl, c_stat, tot_gen,tot_sex,tot_dipl,tot_stat)
+! Arguments:
+! IN : cont_in 
+! OUT : cont_out
+! IN : c_gen contains the age group contraints for the population
+! IN : c_sex contains the gender contraints for the population
+! IN : c_dipl contains the diploma constraints for the population
+! IN : c_stat contains the work status contraints for the population
+! OUT : d_gen contains the marginal distribution for the age group variable
+! OUT : d_sex contains the marginal distribution for the gender variable
+! OUT : d_dipl contains the marginal distribution for the diploma variable
+! OUT : d_stat contains the marginal distribution for the work status
+subroutine ipf_iter(cont_in, cont_out, c_gen, c_sex, c_dipl, c_stat, d_gen,d_sex,d_dipl,d_stat)
     real(dp), dimension(20,2,8,3), intent(in) :: cont_in
     real(dp), dimension(20,2,8,3), intent(out) :: cont_out
     integer, dimension(20), intent(in) :: c_gen
     integer, dimension(2), intent(in) :: c_sex
     integer, dimension(8), intent(in) :: c_dipl
     integer, dimension(3), intent(in) :: c_stat
+    real(dp), dimension(20), intent(out) :: d_gen
+    real(dp), dimension(2), intent(out) :: d_sex
+    real(dp), dimension(8), intent(out) :: d_dipl
+    real(dp), dimension(3), intent(out) :: d_stat
     integer :: i
-    real(dp), dimension(20), intent(out) :: tot_gen
-    real(dp), dimension(2), intent(out) :: tot_sex
-    real(dp), dimension(8), intent(out) :: tot_dipl
-    real(dp), dimension(3), intent(out) :: tot_stat
 
     cont_out = cont_in
 
-    tot_sex = sum(sum(sum(cont_out,4),3),1)
+    d_sex = sum(sum(sum(cont_out,4),3),1)
     do i = 1,2,1
-        cont_out(:,i,:,:) = cont_out(:,i,:,:)*(c_sex(i)/tot_sex(i))
+        cont_out(:,i,:,:) = cont_out(:,i,:,:)*(c_sex(i)/d_sex(i))
     end do
-    tot_gen = sum(sum(sum(cont_out,4),3),2)
+    d_gen = sum(sum(sum(cont_out,4),3),2)
     do i = 1,20,1
-        cont_out(i,:,:,:) = cont_out(i,:,:,:)*(c_gen(i)/tot_gen(i))
+        cont_out(i,:,:,:) = cont_out(i,:,:,:)*(c_gen(i)/d_gen(i))
     end do
-    tot_dipl = sum(sum(sum(cont_out,4),2),1)
+    d_dipl = sum(sum(sum(cont_out,4),2),1)
     do i = 1,8,1
-        cont_out(:,:,i,:) = cont_out(:,:,i,:)*(c_dipl(i)/tot_dipl(i))
+        cont_out(:,:,i,:) = cont_out(:,:,i,:)*(c_dipl(i)/d_dipl(i))
     end do
-    tot_stat = sum(sum(sum(cont_out,3),2),1)
+    d_stat = sum(sum(sum(cont_out,3),2),1)
     do i = 1,3,1
-        cont_out(:,:,:,i) = cont_out(:,:,:,i)*(c_stat(i)/tot_stat(i))
+        cont_out(:,:,:,i) = cont_out(:,:,:,i)*(c_stat(i)/d_stat(i))
     end do
 end subroutine ipf_iter
 
@@ -45,6 +64,9 @@ end subroutine ipf_iter
 ! POST: returns distance between t1 and t2
 ! Description: dist_cont returns the distance between contingency tables t1 and t2
 ! to be used as the halting criterion for ipf_gen
+! Arguments:
+! IN : t1
+! IN : t2
 function dist_cont(t1, t2) result(d)
     real(dp), dimension(20,2,8,3), intent(in) :: t1, t2
     real(dp) :: d
@@ -59,6 +81,15 @@ end function dist_cont
 ! erreur_ipf_<ins>.txt containing the successive distances between consecutive
 ! iterations, and a file named margin_<ins>.txt containing the marginal distributions at each iteration
 ! If the optional argument path is provided, the files are written in the directory it points to
+! Arguments:
+! IN : cont_in
+! IN : c_gen contains the age group contraints for the population
+! IN : c_sex contains the gender contraints for the population
+! IN : c_dipl contains the diploma constraints for the population
+! IN : c_stat contains the work status contraints for the population
+! IN : eps is the error tolerance for the ipf
+! IN : ins
+! IN : path is the optional path where the file should be created
 function ipf_gen(cont_in, c_gen, c_sex, c_dipl, c_stat, eps, ins, path) result(ct2)
     real(dp), dimension(20,2,8,3), intent(in) :: cont_in
     real(dp), dimension(20,2,8,3) :: ct1, ct2
@@ -66,10 +97,10 @@ function ipf_gen(cont_in, c_gen, c_sex, c_dipl, c_stat, eps, ins, path) result(c
     integer, dimension(2), intent(in) :: c_sex
     integer, dimension(8), intent(in) :: c_dipl
     integer, dimension(3), intent(in) :: c_stat
-    real(dp), dimension(20) :: tot_gen
-    real(dp), dimension(2) :: tot_sex
-    real(dp), dimension(8) :: tot_dipl
-    real(dp), dimension(3) :: tot_stat
+    real(dp), dimension(20) :: d_gen
+    real(dp), dimension(2) :: d_sex
+    real(dp), dimension(8) :: d_dipl
+    real(dp), dimension(3) :: d_stat
     real(dp), intent(in) :: eps
     integer, intent(in), optional :: ins
     character(len=4), intent(in), optional :: path
@@ -90,7 +121,7 @@ function ipf_gen(cont_in, c_gen, c_sex, c_dipl, c_stat, eps, ins, path) result(c
     end if
 
     ct1 = cont_in
-    call ipf_iter(ct1, ct2, c_gen, c_sex, c_dipl, c_stat, tot_gen, tot_sex, tot_dipl, tot_stat)
+    call ipf_iter(ct1, ct2, c_gen, c_sex, c_dipl, c_stat, d_gen, d_sex, d_dipl, d_stat)
 
     n = 0
 
@@ -98,44 +129,44 @@ function ipf_gen(cont_in, c_gen, c_sex, c_dipl, c_stat, eps, ins, path) result(c
         write(10,'(I3,A1,F23.14)') n,' ', dist_cont(ct1,ct2)
         write(11, "(I1)") n
         do i = 1,20, 1
-            write(11,"(F11.4,X)",advance='no') tot_gen(i)
+            write(11,"(F11.4,X)",advance='no') d_gen(i)
         end do
         write(11,*) ''
         do i = 1,2, 1
-            write(11,"(F13.4,X)",advance='no') tot_sex(i)
+            write(11,"(F13.4,X)",advance='no') d_sex(i)
         end do
         write(11,*) ''
         do i = 1,8, 1
-            write(11,"(F11.4,X)",advance='no') tot_dipl(i)
+            write(11,"(F11.4,X)",advance='no') d_dipl(i)
         end do
         write(11,*) ''
         do i = 1,3, 1
-            write(11,"(F11.4,X)",advance='no') tot_stat(i)
+            write(11,"(F11.4,X)",advance='no') d_stat(i)
         end do
         write(11,*) ''
     end if
 
     do while (dist_cont(ct1,ct2)>eps)
         ct1 = ct2
-        call ipf_iter(ct1, ct2, c_gen, c_sex, c_dipl, c_stat, tot_gen, tot_sex, tot_dipl, tot_stat)
+        call ipf_iter(ct1, ct2, c_gen, c_sex, c_dipl, c_stat, d_gen, d_sex, d_dipl, d_stat)
         if (present(ins)) then
             n = n+1
             write(10,'(I3,A1,F23.14)') n,' ', dist_cont(ct1,ct2)
             write(11, "(I2)") n
             do i = 1,20, 1
-                write(11,"(F11.4,X)",advance='no') tot_gen(i)
+                write(11,"(F11.4,X)",advance='no') d_gen(i)
             end do
             write(11,*) ''
             do i = 1,2, 1
-                write(11,"(F13.4,X)",advance='no') tot_sex(i)
+                write(11,"(F13.4,X)",advance='no') d_sex(i)
             end do
             write(11,*) ''
             do i = 1,8, 1
-                write(11,"(F11.4,X)",advance='no') tot_dipl(i)
+                write(11,"(F11.4,X)",advance='no') d_dipl(i)
             end do
             write(11,*) ''
             do i = 1,3, 1
-                write(11,"(F11.4,X)",advance='no') tot_stat(i)
+                write(11,"(F11.4,X)",advance='no') d_stat(i)
             end do
             write(11,*) ''
         end if
@@ -151,6 +182,8 @@ end function ipf_gen
 ! POST: all elements of cont_table have their fractional part equal to 0
 ! Description: trs uses the truncate-replicate-sample method to
 ! integerize cont_table
+! Arguments:
+! INOUT : cont_table
 subroutine trs(cont_table)
     real(dp), dimension(20,2,8,3), intent(inout) :: cont_table
     real(dp), dimension(20,2,8,3) :: frac_table

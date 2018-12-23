@@ -1,4 +1,14 @@
 module list
+
+! """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+! File: list.f90
+! Author: csimal
+! Description: This module provides the main type used in the simulation
+! as well as a implementation of a doubly linked list of that type.
+! We use a doubly linked list for efficient memory usage, and fast insertion
+! and deletion.
+! """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
     implicit none
 
     type Person
@@ -23,6 +33,12 @@ module list
 
 ! PRE: p is not allocated
 ! POST: p is allocated and associated to a person defined by age, sex, dipl and wstat
+! Description: creates a new person defined by age, sex, diploma and work status
+! Arguments:
+! IN : age
+! IN : sex
+! IN : dipl
+! IN : wstat
 subroutine new_person(age,sex,dipl,wstat,p)
     integer, intent(in) :: age
     integer, intent(in) :: sex
@@ -39,6 +55,9 @@ end subroutine new_person
 
 ! PRE: node is contained in list
 ! POST: node is removed from list
+! Description: removes node from list
+! IN : list
+! IN : node is a node contained in list
 subroutine remove_person(list,node)
     type(ListPerson), intent(inout) :: list
     type(ListPersonNode), pointer, intent(inout) :: node
@@ -67,8 +86,12 @@ subroutine remove_person(list,node)
     deallocate(temp)
 end subroutine remove_person
 
-! PRE: /
+! PRE: p is associated
 ! POST: a node containing p is appended to list
+! Description: append p to list
+! Arguments:
+! INOUT : list
+! IN : p
 subroutine append_person(list,p)
     type(ListPerson), intent(inout) :: list
     type(Person), pointer, intent(in) :: p
@@ -87,6 +110,10 @@ end subroutine append_person
 
 ! PRE: /
 ! POST: l2 is appended to l1, and l2 is empty
+! Description: appends list l2 to list l1 and empties is to avoid side effects
+! Arguments:
+! INOUT : l1
+! INOUY : l2
 subroutine concat_lists(l1,l2)
     type(ListPerson), intent(inout) :: l1,l2
 
@@ -101,6 +128,9 @@ end subroutine concat_lists
 
 ! PRE: /
 ! POST: deletes every element of list
+! Description: deallocates every element of list and empties it
+! Arguments:
+! IN : list
 subroutine empty_list(list)
     type(ListPerson), intent(inout) :: list
 
