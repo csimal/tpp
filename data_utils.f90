@@ -4,7 +4,9 @@ module data_utils
     implicit none
     contains
 
-! functions for converting string values from files to corresponding ints
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! functions for converting string values from files to corresponding ints !
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 ! PRE: /
 ! POST: /
@@ -122,8 +124,10 @@ function str2stat(statut) result(i)
     end select
 end function str2stat
 
-! functions for converting index values computed by the above functions to their
-! string counterparts. They can be thought of as their inverse
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! functions for converting index values computed by the above functions to their !
+! string counterparts. They can be thought of as their inverse                   !
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 ! PRE: /
 ! POST: /
@@ -241,8 +245,9 @@ function stat2str(i) result(stat)
     end select
 end function stat2str
 
-
-! subroutines for reading files into useful data
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! subroutines for reading files into useful data !
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 ! PRE: BelgiqueConting.txt must be in the same directory as the calling
 ! executable
@@ -258,7 +263,7 @@ subroutine read_cont_table(cont, total)
     character(len=12) :: gen, sex, dipl, statut
     integer :: freq,iostatus,i,j,k,l
     total = 0
-    open (unit = 1, file = "BelgiqueConting.txt", action="read")
+    open (unit = 1, file = 'BelgiqueConting.txt', action='read')
     read(1,*) !skip first line
      do while (1.eq.1)
         read(1,*,IOSTAT=iostatus) gen, sex, dipl, statut, freq
@@ -275,12 +280,14 @@ subroutine read_cont_table(cont, total)
      close(1)
 end subroutine read_cont_table
 
-! PRE: /
-! POST: /
+! PRE: if provided, path must contain the path to an existing directory in the form "dir/"
+! POST: cont is written to a file
 ! Description: writes the contingency table cont to a file according to
 ! the format used in read_cont_table. The file created is named
 ! "cont_table_generated_XXXXX.txt", where XXXXX is the 5 digit ins code
 ! If a file with this name already exists, it is overwritten.
+! If the optional path argument is provided, the file will be created in that path
+! provided the path points to an existing directory.
 subroutine write_cont_table(cont, ins, path)
     real(dp), dimension(20,2,8,3),intent(in) :: cont
     integer, intent(in) :: ins
@@ -289,13 +296,13 @@ subroutine write_cont_table(cont, ins, path)
     character(len=35) :: filename
     character(len=30) :: formatstr
 
-    write(filename,"(A11,I5,A4)") "cont_table_", ins, ".txt"
+    write(filename,'(A11,I5,A4)') 'cont_table_', ins, '.txt'
     if (present(path)) then
         filename = trim(adjustl(path))//adjustl(filename)
     end if
-    open (unit = 10, file = filename, action="write")
-    formatstr = '(A,A1,A,A1,A,A1,A,A1,I6)'
-    write(10,*) 'gener sex dipl statut Freq'
+    open (unit = 10, file = filename, action='write')
+    formatstr = '(A,A,A,A,A,A,A,A,I6)'
+    write(10,'(A)') 'gener sex dipl statut Freq'
     do l = 1,3
         do k = 1,8
             do j = 1,2
@@ -309,7 +316,7 @@ subroutine write_cont_table(cont, ins, path)
     close(10)
 end subroutine write_cont_table
 
-! PRE: /
+! PRE: if provided, path must contain the path to an existing directory in the form "dir/"
 ! POST: writes the list of individuals from cont into a file
 ! Description: writes the population described in cont to a file.
 ! Each line describes an individual from cont using the following format:
@@ -317,6 +324,8 @@ end subroutine write_cont_table
 ! The file created is named "population_generated_XXXXX.txt"
 ! where XXXXX is the 5 digit ins code. If a file with this name
 ! already exists, it is overwritten.
+! If the optional path argument is provided, the file will be created in that path
+! provided the path points to an existing directory.
 subroutine write_population(cont, ins, path)
     real(dp), dimension(20,2,8,3),intent(in) :: cont
     integer, intent(in) :: ins
@@ -324,18 +333,19 @@ subroutine write_population(cont, ins, path)
     integer :: i, j, k, l,m
     character(len=40) :: filename
 
-    write(filename,"(A10,I5,A4)") "final_pop_", ins, ".txt"
+    write(filename,"(A,I5,A)") "final_pop_", ins, ".txt"
     if (present(path)) then
         filename = trim(adjustl(path))//adjustl(filename)
     end if
     open (unit = 10, file = filename, action="write")
+    write(10,'(A)') 'gener sex dipl statut'
     do l = 1,3
         do k = 1,8
             do j = 1,2
                 do i = 1,20
                     do m=1,int(cont(i,j,k,l))
-                        write(10,'(A,A1,A,A1,A,A1,A)') trim(gen2str(i)),' ',sex2str(j),' ', & 
-                            trim(dipl2str(k)),' ',trim(stat2str(l))
+                        write(10,'(I2,A,I1,A,I1,A,I1)') i,' ',j,' ', & 
+                            k,' ',l
                     end do
                 end do
             end do
@@ -344,9 +354,16 @@ subroutine write_population(cont, ins, path)
     close(10)
 end subroutine write_population
 
-! PRE: /
-! POST: /
+! PRE: if provided, path must contain the path to an existing directory in the form "dir/"
+! POST: writes the list of individuals from pop into a file
 ! Description:
+! Each line describes an individual from pop using the following format:
+! <generation> <sex> <diploma> <work_status>
+! The file created is named "population_XXXXX_YYYY.txt"
+! where XXXXX is the 5 digit ins code, and YYYY is the year.
+! If a file with this name already exists, it is overwritten.
+! If the optional path argument is provided, the file will be created in that path
+! provided the path points to an existing directory.
 subroutine write_population_list(pop, ins, year, path)
     type(ListPerson), intent(in) :: pop
     integer, intent(in) :: ins, year
@@ -355,26 +372,35 @@ subroutine write_population_list(pop, ins, year, path)
     type(ListPersonNode), pointer :: node, empty
     type(Person), pointer :: p
 
-    write(filename,"(A11,I5,A1,I4,A4)") "population_", ins,"_",year, ".txt"
+    write(filename,"(A,I5,A,I4,A)") 'population_', ins,'_',year, '.txt'
     if (present(path)) then
         filename = trim(adjustl(path))//adjustl(filename)
     end if
 
-    open (unit = 10, file = filename, action="write")
+    open (unit = 10, file = filename, action='write')
+    write(10,'(A)') 'age sex dipl statut'
     allocate(empty)
     node => empty
     node%right => pop%first
     do while (associated(node%right))
         node => node%right
         p => node%person
-        write(10,'(I3,A1,A,A1,A,A1,A)') p%age,' ',sex2str(p%sex),' ', &
-            trim(dipl2str(p%diploma)),' ',trim(stat2str(p%work_status))
+        write(10,'(I3,A,I1,A,I1,A,I1)') p%age,' ',p%sex,' ', &
+            p%diploma,' ',p%work_status
     end do
     deallocate(empty)
     close(10)
 end subroutine write_population_list
 
-subroutine write_final_pop(pop, ins,year,path)
+! PRE: if provided, path must contain the path to an existing directory in the form "dir/"
+! POST: writes the population described in pop as a contingency table
+! Description: Each entry in the file is of the form 
+! <gener> <sex> <dipl> <statut> <Freq>, that is the same format used in read_cont_table()
+! Only entries with Freq > 0 are written, in order to keep filesize low.
+! The file created is called "cont_table_final_YYYY_XXXXX.txt", where YYYY is year, and XXXXX is the 5-digit ins code
+! If the optional path argument is provided, the file will be created in that path
+! provided it points to an existing directory.
+subroutine write_final_cont(pop,ins,year,path)
     type(ListPerson), intent(in) :: pop
     integer, intent(in) :: ins,year
     integer :: age,i,j,k,l
@@ -385,7 +411,7 @@ subroutine write_final_pop(pop, ins,year,path)
     type(Person), pointer :: p
     character(len=30) :: formatstr
 
-    cont = 0.0
+    cont = 0.0 ! this initializes every element of cont to 0.0
     
     allocate(empty)
     node => empty
@@ -394,36 +420,38 @@ subroutine write_final_pop(pop, ins,year,path)
         node => node%right
         p => node%person
 
-        age=int(p%age/5)+1
+        age = int(p%age/5)+1
         if( p%age >= 95) then
-            age=20
+            age = 20
         end if
         cont(age,p%sex,p%diploma,p%work_status)=cont(age,p%sex,p%diploma,p%work_status)+1
     end do
 
-    write(filename,"(A17,I4,A1,I5,A4)") "cont_final_table_",year,"_", ins, ".txt"
+    write(filename,'(A,I4,A,I5,A)') 'cont_table_final_',year,'_', ins, '.txt'
     if (present(path)) then
         filename = trim(adjustl(path))//adjustl(filename)
     end if
-    open (unit = 10, file =filename, action="write")
-    write(10,*) 'gener sex dipl statut Freq'
+    open (unit = 10, file =filename, action='write')
+    write(10,'(A)') 'gener sex dipl statut Freq'
     formatstr = '(A,A1,A,A1,A,A1,A,A1,I6)'
     do l = 1,3
         do k = 1,8
             do j = 1,2
                 do i = 1,20
-                    write(10,formatstr) trim(gen2str(i)),' ',sex2str(j),' ', &
-                        trim(dipl2str(k)),' ',trim(stat2str(l)),' ',int(cont(i,j,k,l))
+                    if (int(cont(i,j,k,l)) /= 0) then ! only print non zero elements for storage efficiency
+                        write(10,formatstr) trim(gen2str(i)),' ',sex2str(j),' ', &
+                            trim(dipl2str(k)),' ',trim(stat2str(l)),' ',int(cont(i,j,k,l))
+                    end if
                 end do
             end do
         end do
     end do
     close(10)
-end subroutine write_final_pop
+end subroutine write_final_cont
 
-! PRE: ContrainteAge.txt must be in the same directory as the calling
+! PRE: "ContrainteAge.txt" must be in the same directory as the calling
 ! executable
-! POST: /
+! POST: const_gen contains the generation constraint table for ins
 ! Description: reads the constraint table associated with ins from
 ! a local file
 subroutine read_constraints_gen(ins,const_gen)
@@ -433,7 +461,7 @@ subroutine read_constraints_gen(ins,const_gen)
     character(len=5) :: gen
     integer :: com, val
 
-    open (unit = 1, file = "ContrainteAge.txt", action="read")
+    open (unit = 1, file = 'ContrainteAge.txt', action='read')
     read(1,*)
     do while (1.eq.1)
         read(1,*,IOSTAT=iostatus) com, gen, val
@@ -447,6 +475,10 @@ subroutine read_constraints_gen(ins,const_gen)
     close(1)
 end subroutine read_constraints_gen
 
+! PRE: "ContrainteGenre.txt" must be in the same directory
+!       as the calling executable
+! POST: const_sex contains the gender constraints for ins
+! Description: 
 subroutine read_constraints_sex(ins,const_sex)
     integer, dimension(2), intent(inout) :: const_sex
     integer, intent(in) :: ins
@@ -454,7 +486,7 @@ subroutine read_constraints_sex(ins,const_sex)
     character(len=6) :: sex
     integer :: com, val
 
-    open (unit = 1, file = "ContrainteGenre.txt", action="read")
+    open (unit = 1, file = 'ContrainteGenre.txt', action='read')
     read(1,*)
     do while (1.eq.1)
         read(1,*,IOSTAT=iostatus) com, sex, val
@@ -469,6 +501,10 @@ subroutine read_constraints_sex(ins,const_sex)
     close(1)
 end subroutine read_constraints_sex
 
+! PRE: "ContrainteDipl.txt" must be in the same directory
+!       as the calling executable
+! POST: const_dipl contains the diploma constraints for ins
+! Description: 
 subroutine read_constraints_dipl(ins,const_dipl)
     integer, dimension(8), intent(inout) :: const_dipl
     integer, intent(in) :: ins
@@ -476,7 +512,7 @@ subroutine read_constraints_dipl(ins,const_dipl)
     character(len=11) :: dipl
     integer :: com, val
 
-    open (unit = 1, file = "ContrainteDipl.txt", action="read")
+    open (unit = 1, file = 'ContrainteDipl.txt', action='read')
     read(1,*)
     do while (.true.)
         read(1,*,IOSTAT=iostatus) com, dipl, val
@@ -491,6 +527,10 @@ subroutine read_constraints_dipl(ins,const_dipl)
     close(1)
 end subroutine read_constraints_dipl
 
+! PRE: "ContrainteStatut.txt" must be in the same directory
+!       as the calling executable
+! POST: const_stat contains the work status constraints for ins
+! Description: 
 subroutine read_constraints_stat(ins,const_stat)
     integer, dimension(3), intent(inout) :: const_stat
     integer, intent(in) :: ins
@@ -498,7 +538,7 @@ subroutine read_constraints_stat(ins,const_stat)
     character(len=12) :: stat
     integer :: com, val
 
-    open (unit = 1, file = "ContrainteStatut.txt", action="read")
+    open (unit = 1, file = 'ContrainteStatut.txt', action='read')
     read(1,*)
     do while (.true.)
         read(1,*,IOSTAT=iostatus) com, stat, val
@@ -506,24 +546,27 @@ subroutine read_constraints_stat(ins,const_stat)
             exit
         end if
         if (com==ins) then
-            i=str2stat(stat)
-            const_stat(i)=val
+            i = str2stat(stat)
+            const_stat(i) = val
         end if
     end do
     close(1)
 end subroutine read_constraints_stat
 
+! PRE: "ContrainteGenre.txt" must be in the same directory
+!       as the calling executable
+! POST: ins_table contains the list of ins codes that can be processed
+! Description: 
 subroutine read_ins_table(ins_table)
     integer, dimension(38), intent(out) :: ins_table
-    integer ::i
+    integer :: i
 
-    open (unit = 1, file = "ContrainteGenre.txt", action="read")
+    open (unit = 1, file = 'ContrainteGenre.txt', action='read')
     read(1,*)
     do i=1,38
         read(1,*) ins_table(i)
     end do
     close(1)
 end subroutine read_ins_table
-
 
 end module data_utils

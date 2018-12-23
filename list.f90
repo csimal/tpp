@@ -21,8 +21,8 @@ module list
 
     contains
 
-! PRE: /
-! POST: p is associated to a person defined by age, sex, dipl and wstat
+! PRE: p is not allocated
+! POST: p is allocated and associated to a person defined by age, sex, dipl and wstat
 subroutine new_person(age,sex,dipl,wstat,p)
     integer, intent(in) :: age
     integer, intent(in) :: sex

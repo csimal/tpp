@@ -29,25 +29,23 @@ program main
     call getarg(2,path)
     read(path,*) seed
 
-    write(path,"(A3,A1)") trim(path),"/"
-    call system('mkdir -p ' // adjustl(path))
-    write(*,*) seed
-    seed = random_xorshift(seed)
+    write(path,'(A3,A1)') trim(path),'/'
+    call system('mkdir -p ' // adjustl(path)) ! create the directory
+    write(*,'(A,I3)') 'Seed: ',seed
+    seed = random_xorshift(seed) ! initialize the pseudorandom number generator with the seed
 
     call read_cont_table(cont,total)
-    call read_ins_table(ins_table)
+    call read_ins_table(ins_table) ! read the list of ins codes to process
     call read_age_distr(age_distr)
     call read_birth_distr(birth_distr)
     call read_death_distr(death_distr)
-    do i=23,23
-        ins=ins_table(i)
-        age_year =0
+    do i = 1,38
+        ins = ins_table(i)
+        age_year = 0
         ct = 0
-        write(*,'(A,I5)') "Simulation for ins: ",ins
-        write(filename,"(A9,I5,A4)") "sextable_", ins,".txt"
+        write(*,'(A,I5)') 'Simulation for ins: ',ins
+        write(filename,'(A,I5,A)') 'sextable_', ins,'.txt'
         filename = trim(adjustl(path))//adjustl(filename)
-        open (unit = 2,file=filename, action="write")
-        write(2,'(A)')"Année Age Hommes Femmes"
         call read_constraints_gen(ins,c_gen)
         call read_constraints_sex(ins, c_sex)
         call read_constraints_dipl(ins, c_dipl)
@@ -58,19 +56,21 @@ program main
         call write_population(ct, ins, path)
         call generate_pop(ct,age_distr,pop,age_year)
 
+        open (unit = 2,file=filename, action='write')
+        write(2,'(A)') 'Année Age Hommes Femmes'
         do k=1,105
-            write(2,"(I4,A1,I3,A1,I7,A1,I7)")2011,' ', k-1,' ',age_year(1,k),' ',age_year(2,k)
+            write(2,'(I4,A,I3,A,I7,A,I7)') 2011,' ', k-1,' ',age_year(1,k),' ',age_year(2,k)
         end do
-        do j=2011,year-1
+        do j=2012,year
                 call simulate_year(pop,birth_distr,death_distr,age_year)
                 do k=1,105
-                    write(2,"(I4,A1,I3,A1,I7,A1,I7)")j+1,' ', k-1,' ',age_year(1,k),' ',age_year(2,k)
+                    write(2,'(I4,A,I3,A,I7,A,I7)') j,' ', k-1,' ',age_year(1,k),' ',age_year(2,k)
                 end do
         end do
 
         call write_population_list(pop,ins,year,path)
-        call write_final_pop(pop,ins,year,path)
-        call empty_list(pop)
+        call write_final_cont(pop,ins,year,path)
+        call empty_list(pop) ! clean up before the next simulation
         close(2)
     end do
 end program main

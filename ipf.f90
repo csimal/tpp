@@ -4,8 +4,8 @@ module ipf
     implicit none
     contains
 
-! PRE:
-! POST:
+! PRE: /
+! POST: cont_out contains the result of a single iteration of ipf on cont_in
 ! Description: ipf_iter computes a single iteration of ipf of the contigency table cont_in
 ! returning the new table in cont_out
 subroutine ipf_iter(cont_in, cont_out, c_gen, c_sex, c_dipl, c_stat, tot_gen,tot_sex,tot_dipl,tot_stat)
@@ -51,13 +51,14 @@ function dist_cont(t1, t2) result(d)
     d = sum(abs(t1-t2))
 end function dist_cont
 
-! PRE: eps > 0
+! PRE: eps > 0, if provided, path must point to an existing directory
 ! POST:
 ! Description: ipf_gen iterates ipf_iter on contigency table cont_in, until the distance
 ! between consecutive iteration is less than eps.
 ! If the optional 5 digit code ins is provided, it will create a file named
 ! erreur_ipf_<ins>.txt containing the successive distances between consecutive
-! iterations.
+! iterations, and a file named margin_<ins>.txt containing the marginal distributions at each iteration
+! If the optional argument path is provided, the files are written in the directory it points to
 function ipf_gen(cont_in, c_gen, c_sex, c_dipl, c_stat, eps, ins, path) result(ct2)
     real(dp), dimension(20,2,8,3), intent(in) :: cont_in
     real(dp), dimension(20,2,8,3) :: ct1, ct2
@@ -76,8 +77,8 @@ function ipf_gen(cont_in, c_gen, c_sex, c_dipl, c_stat, eps, ins, path) result(c
     integer :: i, n
 
     if (present(ins)) then
-        write(filename, "(A18,I5,A4)") "stopping_criteria_", ins, ".txt"
-        write(filename_margin, "(A7,I5,A4)") "margin_", ins, ".txt"
+        write(filename, "(A,I5,A)") "stopping_criteria_", ins, ".txt"
+        write(filename_margin, "(A,I5,A)") "margin_", ins, ".txt"
         if (present(path)) then
             filename=adjustl(filename)
             filename = trim(adjustl(path))//adjustl(filename) ! trim to remove trailing whitespace
@@ -112,9 +113,7 @@ function ipf_gen(cont_in, c_gen, c_sex, c_dipl, c_stat, eps, ins, path) result(c
             write(11,"(F11.4,X)",advance='no') tot_stat(i)
         end do
         write(11,*) ''
-
     end if
-
 
     do while (dist_cont(ct1,ct2)>eps)
         ct1 = ct2
