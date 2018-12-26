@@ -54,7 +54,7 @@ program main
 
     do i = 1,38
         ins = ins_table(i)
-        gic = 0
+        sextable = 0
         ct = 0
         write(*,'(A,I5)') 'Simulation for ins: ',ins
         write(filename,'(A,I5,A)') 'sextable_', ins,'.txt'
@@ -76,7 +76,7 @@ program main
             write(2,'(I4,A,I3,A,I7,A,I7)') 2011,' ', k-1,' ',sextable(1,k),' ',sextable(2,k)
         end do
         do j=2012,year
-                call simulate_year(pop,birth_distr,death_distr,gic)
+                call simulate_year(pop,birth_distr,death_distr,sextable)
                 do k=1,105
                     write(2,'(I4,A,I3,A,I7,A,I7)') j,' ', k-1,' ',sextable(1,k),' ',sextable(2,k)
                 end do
