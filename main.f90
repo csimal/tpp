@@ -7,7 +7,7 @@ program main
     use pop_sim
 
 ! """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-! File: main
+! File: main.f90
 ! Author: meuricel
 ! Description: This is the main program for the simulation.
 ! It takes as arguments the year the simulation should end at

@@ -2,7 +2,7 @@ module random
     use constants
 
 ! """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-! File: random
+! File: random.f90
 ! Author: csimal
 ! Description: This module implements various pseudorandom numbers generators
 ! """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -17,6 +17,8 @@ module random
 ! discrete uniform distribution on the integers from 0 to 2^31 -1
 ! Use of this function should be avoided, as it fails proper
 ! randomness tests.
+! Arguments:
+! IN : seed is the optional seed for the generator
 function randu(seed) result(res)
     integer, intent(in), optional :: seed
     integer(kind=8), save :: r
@@ -43,6 +45,8 @@ end function randu
 ! is set using the current system clock time upon the first call of the
 ! function. If the seed is somehow 0, a magic number is used to ensure
 ! a non-zero seed.
+! Arguments:
+! IN : seed is the optional seed for the generator
 function random_xorshift(seed) result(res)
     integer(kind=8), intent(in), optional :: seed
     integer(kind=8), save :: x
@@ -68,6 +72,9 @@ end function random_xorshift
 ! PRE: /
 ! POST: returns a pseudorandom number. The numbers generated follow
 ! a discrete uniform distribution on the integers from 0 to 2^62 -1
+! Description: This function generates pseudo random numbers using
+! a multiplicative linear congruential generator method with the 
+! output of random_xorshift as it's seed.
 function ranq1() result(res)
     integer :: x
     integer :: res, m=2**62, a=2685821657736338717
@@ -78,6 +85,8 @@ end function ranq1
 ! PRE: /
 ! POST: returns a pseudorandom number. The numbers generated follow
 ! a uniform distribution on the interval [0,1]
+! Description: This function converts the output of ranq1 to a
+! double precision floating point number between 0 and 1.
 function random_uniform() result(res)
     real(dp) :: res
     res = real(ranq1(),dp)/real(2**62 -1,dp)

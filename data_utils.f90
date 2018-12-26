@@ -355,6 +355,8 @@ end subroutine write_cont_table
 ! Description: writes the population described in cont to a file.
 ! Each line describes an individual from cont using the following format:
 ! <generation> <sex> <diploma> <work_status>
+! These entries are written in integer forms instead of the corresponding string
+! in order to minimize the size of the resulting file.
 ! The file created is named "population_generated_XXXXX.txt"
 ! where XXXXX is the 5 digit ins code. If a file with this name
 ! already exists, it is overwritten.
@@ -383,7 +385,7 @@ subroutine write_population(cont, ins, path)
                 do i = 1,20
                     do m=1,int(cont(i,j,k,l))
                         write(10,'(I2,A,I1,A,I1,A,I1)') i,' ',j,' ', & 
-                            k,' ',l
+                            k,' ',l ! use integers instead of string for smaller files
                     end do
                 end do
             end do
@@ -397,6 +399,8 @@ end subroutine write_population
 ! Description:
 ! Each line describes an individual from pop using the following format:
 ! <generation> <sex> <diploma> <work_status>
+! These entries are written in integer forms instead of the corresponding string
+! in order to minimize the size of the resulting file.
 ! The file created is named "population_XXXXX_YYYY.txt"
 ! where XXXXX is the 5 digit ins code, and YYYY is the year.
 ! If a file with this name already exists, it is overwritten.
