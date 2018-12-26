@@ -73,12 +73,12 @@ program main
         open (unit = 2,file=filename, action='write')
         write(2,'(A)') 'Année Age Hommes Femmes'
         do k=1,105
-            write(2,'(I4,A,I3,A,I7,A,I7)') 2011,' ', k-1,' ',gic(1,k),' ',sextable(2,k)
+            write(2,'(I4,A,I3,A,I7,A,I7)') 2011,' ', k-1,' ',sextable(1,k),' ',sextable(2,k)
         end do
         do j=2012,year
                 call simulate_year(pop,birth_distr,death_distr,gic)
                 do k=1,105
-                    write(2,'(I4,A,I3,A,I7,A,I7)') j,' ', k-1,' ',gic(1,k),' ',sextable(2,k)
+                    write(2,'(I4,A,I3,A,I7,A,I7)') j,' ', k-1,' ',sextable(1,k),' ',sextable(2,k)
                 end do
         end do
 
