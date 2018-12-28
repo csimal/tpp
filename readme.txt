@@ -20,7 +20,8 @@ with the required data files ("Taux_fecondite.txt", "Taux_deces.txt", "Structure
 "ContrainteStatut.txt", "ContrainteGenre.txt", "ContrainteDipl.txt", "ContrainteAge.txt", "BelgiqueConting.txt")
 in a directory called "tpp" and run
 "sbatch job.sh" in the directory containing tpp.
-The resulting files are written in "tpp/result". This will run 200 simulations.
+The resulting files are written in "tpp/result" which must exist before exection.
+This will run 200 simulations.
 
 Alternatively, you can run the 200 simulations locally by running
 "bash run.sh" in the directory containing the compiled code.
